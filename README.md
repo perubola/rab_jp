@@ -1,2 +1,2 @@
 # rab_jp
-Code for junior paper under supervision of Joshua Rabinowitz
+Code for junior paper under supervision of Joshua Rabinowitz and Daniel Weilandt
