@@ -37,7 +37,6 @@ def get_G(x, N, mu0, BD):
 def flux_vector(x, N, mu0, k, BD, vb1, vb2):
     g = get_G(x, N, mu0, BD=BD)
 
-    print(g)
     k1, k2, k3 = k
 
     v = np.zeros_like(g)  # Initialize flux vector with zeros
