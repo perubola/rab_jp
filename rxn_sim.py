@@ -59,6 +59,7 @@ def objective_function(k, x0, N, mu0, BD, vb1, vb2):
 
 # Function to run optimization for a given x0
 def optimize_for_x0(x0):
+    #NOTE: Here is where you change initial k guess
     k_initial_guess = np.array([0.1, 0.1, 0.1])
     result = minimize(objective_function, k_initial_guess, args=(x0, N, mu0, BD, vb1, vb2))
     if result.success:
