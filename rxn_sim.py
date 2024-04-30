@@ -27,13 +27,13 @@ def get_G(x, N, mu0, mu_bd):
     return G
 def flux_vector(x, N, mu0, k, mu_bd):
     g = get_G(x, N, mu0, mu_bd=mu_bd)
-    vb1, k1, k2, k3, vb2 = k
+    vb1, k1, k2, k3, kb2 = k
     v = np.zeros_like(g)  # Initialize flux vector with zeros
     v[0] = vb1 * (1 - np.exp(g[0]))  # Reaction from R1
     v[1] = k1 * x[0] * (1 - np.exp(g[1]))  # x1 to x2
     v[2] = k2 * x[1] * (1 - np.exp(g[2]))  # x2 to x3
-    v[3] = k3 * x[2] * (1 - np.exp(g[3]))  # x3 to R2
-    v[4] = vb2 * (1 - np.exp(g[4]))  # Reaction to R2
+    v[3] = k3 * x[0] * (1 - np.exp(g[3]))  # x1 to x3
+    v[4] = kb2 * x[2]* (1 - np.exp(g[4]))  # Reaction to R2
     return v
 # ### PART 2: FINDING K for a set of steady state concentration x0 and flux vectors v0
 def calculate_parameters( x0, v0, N, mu0, mu_bd):
@@ -46,7 +46,7 @@ def flux_samples(num_samples, a=[0.1,1] ):
     sample = np.zeros((num_samples, 5))
     for n in range(num_samples):
         alpha = np.random.uniform(*a)
-        v0 = [1, alpha * 1 , (1-alpha) * 1,  1-alpha, 1]
+        v0 = [1, alpha * 1 , alpha * 1,  1-alpha, 1]
         sample[n] = v0
     return sample
 # Generate for thermodynamically consistent x0
@@ -121,7 +121,7 @@ def plot_time_series(x0, t_span, N, mu0, k, mu_bd):
 
 
 
-def plot_phase_space_with_arrows(x0, t_span, N, mu0, k, mu_bd, x0_sys, num_points=20, arrows=False):
+def plot_phase_space_with_arrows(x0, t_span, N, mu0, k, mu_bd, x0_sys, num_points=20, arrows=True):
     """
     2D phase space (x1, x2) with optional quiver plot
     """
@@ -149,7 +149,7 @@ def plot_phase_space_with_arrows(x0, t_span, N, mu0, k, mu_bd, x0_sys, num_point
                 x_sample = np.array([X1[i, j], X2[i, j], 1])  # Assuming a 3D system with x3 normalized to 1
                 dxdt = flux_sys(0, x_sample, N, mu0, k, mu_bd)[:2]  # We only take the first two derivatives
                 U[i, j], V[i, j] = dxdt
-        plt.quiver(X1, X2, U, V, color='blue', width=0.0025, scale=100)  # Flow directions
+        plt.quiver(X1, X2, U, V, color='blue', width=0.0025, scale=3000)  # Flow directions
 
     plt.xlabel('x1')
     plt.ylabel('x2')
@@ -195,18 +195,20 @@ def plot_3d_phase_space_with_arrows(x0, t_span, N, mu0, k, mu_bd, x_sys, num_poi
 
 # Example usage
 t_span = [0, 10]
-idx = 4
+idx = 0
 x0_sys = x0_samples[idx]
 k_sys = k_samples[idx]
 
 def generate_perturbed_initial_conditions(x0, perturbation_strength=0.1):
     # Perturb each component of x0 by a random amount within ±perturbation_strength% of each component's value
-    perturbed_x0 = x0 * (1 + np.random.uniform(-perturbation_strength, perturbation_strength, size=x0.shape))
+    perturbed_x0 = x0 * np.abs((1 + np.random.uniform(-perturbation_strength, perturbation_strength, size=x0.shape)))
+    # perturbed_x0 = x0 * 2 
     return perturbed_x0
+
 
 x0_test = generate_perturbed_initial_conditions(x0_sys, perturbation_strength=0.9)
 plot_time_series(x0_test, t_span, N, mu0, k=k_sys, mu_bd=mu_bd)
-plot_phase_space_with_arrows(x0_test, t_span, N, mu0, k_sys, mu_bd, x0_sys)
+plot_phase_space_with_arrows(x0_test, t_span, N, mu0, k_sys, mu_bd, x0_sys, arrows=True)
 plot_3d_phase_space_with_arrows(x0_test, t_span, N, mu0, k=k_sys, mu_bd=mu_bd, x_sys=x0_sys)
 
 
